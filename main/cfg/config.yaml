@@ -1,0 +1,73 @@
+defaults:
+  - task: ???
+  - rl_train: ${find_rl_train_config:${task}}
+  - dexhand: inspire
+  - override hydra/job_logging: disabled
+  - _self_
+
+task_name: ${task.name}
+experiment: ''
+side: 'Local'
+bimanual_mode: united
+rh_base_model_checkpoint: assets/imitator_rh_inspire.pth
+lh_base_model_checkpoint: assets/imitator_lh_inspire.pth
+
+num_envs: ''
+rolloutStateInit: False
+randomStateInit: True
+
+rolloutLen: null
+rolloutBegin: null
+
+learning_rate: 5e-4
+actionsMovingAverage: 1.0
+
+usePIDControl: False
+
+dataIndices: [7]
+
+seed: 42
+torch_deterministic: False
+
+max_iterations: 9999999999999
+early_stop_epochs: 9999999999999
+
+physics_engine: 'physx'
+pipeline: 'gpu'
+sim_device: 'cuda:0'
+rl_device: 'cuda:0'
+graphics_device_id: 0
+
+num_threads: 4
+solver_type: 1
+num_subscenes: 4
+
+test: False
+save_rollouts: False
+save_successful_rollouts_only: True
+num_rollouts_to_save: 20000
+num_rollouts_to_run: 9999999999999
+min_episode_length: 20
+checkpoint: ''
+from_ckpt_epoch: false
+sigma: ''
+multi_gpu: False
+
+wandb_activate: True
+wandb_group: ''
+wandb_name: ${rl_train.params.config.name}
+wandb_entity: yueqinguan0
+wandb_project: UniH2R_mutil_hand
+wandb_tags: []
+wandb_logcode_dir: '' 
+
+capture_video: False
+n_parallel_recorders: 8
+n_successful_videos_to_record: 50
+display: False
+headless: True
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .

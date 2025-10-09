@@ -1,0 +1,172 @@
+name: ${concat:UniH2RHand,${..side}}
+
+physics_engine: ${..physics_engine}
+seed: ${..seed}
+
+env:
+  numEnvs: ${resolve_default:8192,${...num_envs}}
+  dexhand: ${...dexhand}
+
+  k_max: 22
+  target_max_dim: 450
+  privileged_max_dim: 59
+  embedding_dim: 3
+  
+  numActions: 28
+
+  episodeLength: 1200
+  training: ${if:${...test},False,True}
+
+  usePIDControl: ${...usePIDControl}
+
+  rolloutStateInit: ${resolve_default:False,${...rolloutStateInit}}
+  randomStateInit: ${resolve_default:True,${...randomStateInit}}
+
+  dataIndices: ${resolve_default:[],${...dataIndices}}
+  obsFutureLength: 1
+
+  rolloutLen: ${resolve_default:None,${...rolloutLen}}
+  rolloutBegin: ${resolve_default:None,${...rolloutBegin}}
+
+  clipObservations: 5.0
+  clipActions: 1.0
+
+  furniture: just_one_leg
+
+  frankaDofNoise: 0.25
+
+  targetLiftHeight: 0.05
+  distanceReward: 0.1
+  liftReward: 1.0
+  successReward: 1.0
+
+  aggregateMode: 3
+
+  tightenMethod: "exp_decay"
+  tightenFactor: 0.7
+  tightenSteps: 3200
+
+  actionScale: 1.0
+  useQuatRot: false
+
+  propDumpInfo:
+    q_rh: ${ndof:${....dexhand}}
+    q_lh: ${ndof:${....dexhand}}
+    dq_rh: ${ndof:${....dexhand}}
+    dq_lh: ${ndof:${....dexhand}}
+    state_rh: 13
+    state_lh: 13
+    state_manip_obj_rh: 13
+    state_manip_obj_lh: 13
+    joint_state_rh: ${eval:'${nbody:${....dexhand}}*13'}
+    joint_state_lh: ${eval:'${nbody:${....dexhand}}*13'}
+    tip_force_rh: ${eval:'${resolve_default:5,${....n_contact_bodies}}*3'}
+    tip_force_lh: ${eval:'${resolve_default:5,${....n_contact_bodies}}*3'}
+    reward: 1
+
+  actionsMovingAverage: ${...actionsMovingAverage}
+  translationScale: 1.0
+  orientationScale: 0.1
+  bimanual_mode: ${...bimanual_mode}
+  
+  success_rate_window_size: 100
+  success_rate_threshold: 0.20
+  w_expert_min: 0.2
+  w_expert_max: 1.0
+  w_success_max: 3.0
+  transition_scale: 2.0
+
+  propObsDim: 82
+  obsKeys:
+    - q
+    - cos_q
+    - sin_q
+    - base_state
+
+  privilegedObsDim: 59
+  privilegedObsKeys:
+    - dq
+    - manip_obj_pos
+    - manip_obj_quat
+    - manip_obj_vel
+    - manip_obj_ang_vel
+    - tip_force
+    - manip_obj_com
+    - manip_obj_weight
+
+
+  enableCameraSensors: False
+
+sim:
+  dt: 0.0166667
+  substeps: 2
+  up_axis: "z"
+  use_gpu_pipeline: ${eq:${...pipeline},"gpu"}
+  gravity: [0.0, 0.0, -9.81]
+  physx:
+    num_threads: ${....num_threads}
+    solver_type: ${....solver_type}
+    use_gpu: ${contains:"cuda",${....sim_device}}
+    num_position_iterations: 8
+    num_velocity_iterations: 1
+    contact_offset: 0.005
+    rest_offset: 0.0
+    bounce_threshold_velocity: 0.2
+    max_depenetration_velocity: 1000.0
+    default_buffer_size_multiplier: 5.0
+    max_gpu_contact_pairs: 1048576
+    num_subscenes: ${....num_subscenes}
+    contact_collection: 1
+
+task:
+  randomize: ${if:${...test},False,True}
+  randomization_params:
+    frequency: 32
+    sim_params:
+      gravity:
+        operation: "scaling"
+        schedule: "linear_decay"
+        schedule_steps: 1920
+        external_sample:
+          type: "const_scale"
+          init_value: 0
+    actor_params:
+      manip_obj:
+        color: True
+        rigid_shape_properties:
+          friction:
+            num_buckets: 250
+            operation: "scaling"
+            schedule: "linear_decay"
+            schedule_steps: 1920
+            external_sample:
+              type: "const_scale"
+              init_value: 3
+              upper_bound: 6.0
+              lower_bound: 1.0
+      manip_obj_rh:
+        color: True
+        rigid_shape_properties:
+          friction:
+            num_buckets: 250
+            operation: "scaling"
+            schedule: "linear_decay"
+            schedule_steps: 1920
+            external_sample:
+              type: "const_scale"
+              init_value: 3
+              upper_bound: 6.0
+              lower_bound: 1.0
+      manip_obj_lh:
+        color: True
+        rigid_shape_properties:
+          friction:
+            num_buckets: 250
+            operation: "scaling"
+            schedule: "linear_decay"
+            schedule_steps: 1920
+            external_sample:
+              type: "const_scale"
+              init_value: 3
+              upper_bound: 6.0
+              lower_bound: 1.0
